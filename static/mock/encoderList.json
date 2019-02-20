@@ -1,0 +1,54 @@
+{
+    "result":"ok",
+    "msg":"ok",
+    "data": [
+        {
+            "id": "1",
+            "status": "1",
+            "serialNum": "12345",
+            "name": "ajgiuif",
+            "ip": "1",
+            "mac": "1234567",
+            "authCode": "chsf",
+            "factory": "1",
+            "module": "1",
+            "userName": "xiaobacai"
+        },
+        {
+            "id": "2",
+            "status": "2",
+            "serialNum": "12345",
+            "name": "kate",
+            "ip": "1",
+            "mac": "1234567",
+            "authCode": "chsf",
+            "factory": "1",
+            "module": "1",
+            "userName": "xiaobacai"
+        },
+        {
+            "id": "3",
+            "status": "1",
+            "serialNum": "12345",
+            "name": "name4",
+            "ip": "1",
+            "mac": "1234567",
+            "authCode": "chsf",
+            "factory": "1",
+            "module": "1",
+            "userName": "user1"
+        },
+        {
+            "id": "4",
+            "status": "2",
+            "serialNum": "12345",
+            "name": "name2",
+            "ip": "1",
+            "mac": "1234567",
+            "authCode": "chsf",
+            "factory": "1",
+            "module": "1",
+            "userName": "user2"
+        }
+    ]
+}

@@ -1,0 +1,60 @@
+{
+    "result":"ok",
+    "msg":"ok",
+    "data": [
+        {
+            "name": "Kiloview",
+            "id": "1",
+            "children": [
+               {
+                "name": "4G聚合",
+                "id": "1"
+               },
+               {
+                "name": "4G聚合111",
+                "id": "2"
+               },
+               {
+                "name": "4G聚合222",
+                "id": "2"
+               }
+            ]
+        },
+        {
+            "name": "xiaibai",
+            "id": "2",
+            "children": [
+               {
+                "name": "aaaaa",
+                "id": "1"
+               },
+               {
+                "name": "bbbbb",
+                "id": "2"
+               },
+               {
+                "name": "ccccc",
+                "id": "3"
+               }
+            ]
+        },
+        {
+            "name": "hongluobo",
+            "id": "3",
+            "children": [
+               {
+                "name": "11111",
+                "id": "1"
+               },
+               {
+                "name": "22222",
+                "id": "1"
+               },
+               {
+                "name": "33333",
+                "id": "1"
+               }
+            ]
+        }
+    ]
+}

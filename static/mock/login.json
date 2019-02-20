@@ -1,0 +1,21 @@
+{
+    "result": "ok",
+    "msg": "ok",
+    "data": [
+        {
+            "userName": "xiaobaicai",
+            "password": "123456",
+            "isAdmin": "1"
+        },
+        {
+            "userName": "user1",
+            "password": "123456",
+            "isAdmin": "2"
+        },
+        {
+            "userName": "user2",
+            "password": "123456",
+            "isAdmin": "2"
+        }
+    ]
+}
