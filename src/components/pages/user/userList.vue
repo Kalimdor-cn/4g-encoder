@@ -47,21 +47,24 @@
       :before-close="handleClose"
       center
     >
-      <el-form :model="newUserForm" ref="newUserForm" :rules="rules" label-width="120px">
-        <el-form-item prop="serialNum" label="序列号：">
-          <el-input v-model="newUserForm.serialNum" size="small" placeholder="请输入序列号"></el-input>
+      <el-form :model="newUserForm" ref="newUserForm" :rules="newUserRules" label-width="120px">
+        <el-form-item prop="user" label="用户：">
+          <el-input
+            v-model="newUserForm.user"
+            size="small"
+            :disabled="!!newUserForm.create_time"
+            placeholder="请输入用户名"
+          ></el-input>
         </el-form-item>
-        <el-form-item prop="name" label="名称：">
-          <el-input v-model="newUserForm.name" size="small" placeholder="请输入名称"></el-input>
+        <el-form-item prop="name" label="昵称：">
+          <el-input v-model="newUserForm.name" size="small" placeholder="请输入昵称"></el-input>
         </el-form-item>
-        <el-form-item prop="ip" label="IP：">
-          <el-input v-model="newUserForm.ip" size="small" placeholder="请输入IP"></el-input>
+        <el-form-item prop="password" label="密码：" v-if="!newUserForm.create_time">
+          <el-input v-model="newUserForm.password" size="small" placeholder="请输入密码"></el-input>
         </el-form-item>
-        <el-form-item prop="mac" label="MAC：">
-          <el-input v-model="newUserForm.mac" size="small" placeholder="请输入MAC"></el-input>
+        <el-form-item prop="passwordAgain" label="确认密码：" v-if="!newUserForm.create_time">
+          <el-input v-model="newUserForm.passwordAgain" size="small" placeholder="请输入确认密码"></el-input>
         </el-form-item>
-        <el-form-item prop="authCode" label="授权码："></el-form-item>
-        <el-form-item prop="factoryModule" label="厂家-型号："></el-form-item>
       </el-form>
       <div class="dialog-footer">
         <el-button @click="handleClose" type="default" size="small">取 消</el-button>
@@ -72,15 +75,32 @@
 </template>
 <script>
 import paginationMixin from "../../../mixins/pagination";
+import tools from "@/utils/tools";
 export default {
   mixins: [paginationMixin],
   name: "",
   data() {
-    var factoryModuleValid = (rule, value, callback) => {
-      if (!this.newUserForm.factory) {
-        return callback(new Error("请选择厂家"));
-      } else if (!this.newUserForm.module) {
-        return callback(new Error("请选择型号"));
+    var passwordValid = (rule, value, callback) => {
+      if (this.newUserForm.create_time) {
+        return callback();
+      }
+      if (!this.newUserForm.password) {
+        return callback(new Error("密码不能为空"));
+      } else if (this.newUserForm.passwordAgain) {
+        this.$refs.newUserForm.validateField("passwordAgain");
+        return callback();
+      } else {
+        return callback();
+      }
+    };
+    var passwordAgainValid = (rule, value, callback) => {
+      if (this.newUserForm.create_time) {
+        return callback();
+      }
+      if (!this.newUserForm.passwordAgain) {
+        return callback(new Error("密码重复不能为空"));
+      } else if (this.newUserForm.passwordAgain !== this.newUserForm.password) {
+        return callback(new Error("两次密码不一致"));
       } else {
         return callback();
       }
@@ -97,22 +117,14 @@ export default {
         password: "",
         passwordAgain: ""
       },
-      rules: {
-        serialNum: [
-          { required: true, message: "序列号不能为空", trigger: "blur" }
+      newUserRules: {
+        user: [{ required: true, message: "用户名不能为空", trigger: "blur" }],
+        name: [{ required: true, message: "昵称不能为空", trigger: "blur" }],
+        password: [
+          { required: true, validator: passwordValid, trigger: "blur" }
         ],
-        name: [{ required: true, message: "名称不能为空", trigger: "blur" }],
-        ip: [{ required: true, message: "IP不能为空", trigger: "blur" }],
-        mac: [{ required: true, message: "MAC不能为空", trigger: "blur" }],
-        authCode: [
-          { required: true, message: "授权码不能为空", trigger: "blur" }
-        ],
-        factoryModule: [
-          {
-            required: true,
-            validator: factoryModuleValid,
-            trigger: "change"
-          }
+        passwordAgain: [
+          { required: true, validator: passwordAgainValid, trigger: "blur" }
         ]
       }
     };
@@ -161,9 +173,9 @@ export default {
     },
     openDialog(row) {
       this.formVisible = true;
-      this.formTitle = "新增解码器";
+      this.formTitle = "添加用户";
       if (row) {
-        this.formTitle = "编辑解码器";
+        this.formTitle = "编辑";
         this.newUserForm = row;
       }
     },
@@ -187,32 +199,29 @@ export default {
     handleClose() {
       this.formVisible = false;
       this.newUserForm = {
-        serialNum: "",
+        user: "",
         name: "",
-        ip: "",
-        mac: "",
-        authCode: "",
-        factory: "",
-        module: ""
+        password: "",
+        passwordAgain: ""
       };
     },
     submitForm() {
       this.$refs.newUserForm.validate(valid => {
         if (valid) {
-          if (this.newUserForm.id) {
+          if (this.newUserForm.create_time) {
             //编辑
             let vm = this;
-            vm.encoderList.forEach(function(v, i) {
-              if (v.id == vm.newUserForm.id) {
-                vm.encoderList[i] = vm.newUserForm;
+            vm.userList.forEach(function(v, i) {
+              if (v.create_time == vm.newUserForm.create_time) {
+                vm.userList[i] = vm.newUserForm;
               }
             });
             vm.$message.success("编辑成功");
             vm.handleClose();
           } else {
             //新增
-            this.newUserForm.status = 1;
-            this.encoderList.push(this.newUserForm);
+            this.newUserForm.create_time = tools.dateFormat(new Date());
+            this.userList.push(this.newUserForm);
             this.$message.success("新增成功");
             this.handleClose();
           }

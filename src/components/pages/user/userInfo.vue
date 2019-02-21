@@ -1,269 +1,271 @@
 <template>
   <div class="container">
-    <div class="query-div">
-      <span class="fl">
-        <el-button @click="batchDelete()" type="danger">批量删除</el-button>
-        <el-button @click="openDialog()" type="success">添加用户</el-button>
-        <el-button @click="queryData()" type="primary" icon="el-icon-refresh"></el-button>
-      </span>
-    </div>
-    <el-table
-      :data="encoderList"
-      border
-      :header-cell-style="getHeadStyle"
-      center
-      @selection-change="handleSelectionChange"
-    >
-      <el-table-column type="selection" width="55"></el-table-column>
-      <el-table-column prop="serialNum" label="序列号"></el-table-column>
-      <el-table-column prop="name" label="名称"></el-table-column>
-      <el-table-column prop="ip" label="IP"></el-table-column>
-      <el-table-column prop="mac" label="MAC"></el-table-column>
-      <el-table-column prop="authCode" label="授权码"></el-table-column>
-      <el-table-column label="厂家-型号">
-        <template slot-scope="scpoe">{{fmtManuFactor(scpoe.row)}}</template>
-      </el-table-column>
-      <el-table-column prop="userName" label="所属用户"></el-table-column>
-      <el-table-column label="操作">
-        <template slot-scope="scpoe">
-          <el-button @click="openDialog(scpoe.row)" type="primary" size="small" icon="el-icon-edit"></el-button>
-          <el-button @click="doDelete(scpoe.row)" type="danger" size="small" icon="el-icon-delete"></el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-    <!-- 分页 -->
-    <div class="pagination clearfix">
-      <el-pagination
-        class="fr"
-        background
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page="paginationInfo.currentPage"
-        :page-sizes="paginationInfo.pageSizes"
-        :page-size="paginationInfo.pageSize"
-        layout="total, prev, pager, next, sizes"
-        :total="paginationInfo.total"
-      ></el-pagination>
-    </div>
-    <el-dialog
-      :title="formTitle"
-      :visible.sync="formVisible"
-      width="550px"
-      :before-close="handleClose"
-      center
-    >
-      <el-form :model="encoderForm" ref="encoderForm" :rules="rules" label-width="120px">
-        <el-form-item prop="serialNum" label="序列号：">
-          <el-input v-model="encoderForm.serialNum" size="small" placeholder="请输入序列号"></el-input>
-        </el-form-item>
-        <el-form-item prop="name" label="名称：">
-          <el-input v-model="encoderForm.name" size="small" placeholder="请输入名称"></el-input>
-        </el-form-item>
-        <el-form-item prop="ip" label="IP：">
-          <el-input v-model="encoderForm.ip" size="small" placeholder="请输入IP"></el-input>
-        </el-form-item>
-        <el-form-item prop="mac" label="MAC：">
-          <el-input v-model="encoderForm.mac" size="small" placeholder="请输入MAC"></el-input>
-        </el-form-item>
-        <el-form-item prop="authCode" label="授权码：">
-          <el-input
-            v-model="encoderForm.authCode"
-            size="small"
-            disabled
-            style="width:205px;"
-            placeholder="请输入授权码"
-          ></el-input>
-          <el-button type="primary" size="small" @click="createAuthCode">生成授权码</el-button>
-        </el-form-item>
-        <el-form-item prop="factoryModule" label="厂家-型号：">
-          <el-select
-            v-model="encoderForm.factory"
-            size="small"
-            @change="factoryChange"
-            placeholder="请选择厂家"
-            style="width: 145px;margin-right:6px;"
-          >
-            <el-option
-              v-for="item in factoryOptions"
-              :key="item.name"
-              :label="item.name"
-              :value="item.id"
-            ></el-option>
-          </el-select>
-          <el-select
-            v-model="encoderForm.module"
-            size="small"
-            placeholder="请选择型号"
-            style="width: 145px;"
-          >
-            <el-option
-              v-for="item in moduleOptions"
-              :key="item.name"
-              :label="item.name"
-              :value="item.id"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-      </el-form>
-      <div class="dialog-footer">
-        <el-button @click="handleClose" type="default" size="small">取 消</el-button>
-        <el-button type="primary" @click="submitForm" size="small">确 定</el-button>
-      </div>
-    </el-dialog>
+    <el-tabs v-model="activeModule" type="border-card">
+      <el-tab-pane label="个人信息" name="userInfo">
+        <el-form
+          :model="userInfo"
+          :rules="infoRules"
+          ref="infoForm"
+          label-width="85px"
+          class="demo-ruleForm"
+          key="userInfo"
+        >
+          <el-form-item label="用户名" prop="loginName">
+            <el-input v-model="userInfo.loginName" size="small" disabled></el-input>
+          </el-form-item>
+          <el-form-item label="姓名" prop="username">
+            <el-input v-model="userInfo.username" size="small"></el-input>
+          </el-form-item>
+          <el-form-item label="手机号" prop="phoneNo">
+            <el-input v-model="userInfo.phoneNo" size="small"></el-input>
+          </el-form-item>
+          <el-form-item label="邮箱" prop="email">
+            <el-input v-model="userInfo.email" size="small"></el-input>
+          </el-form-item>
+          <!-- <el-form-item label="所在城市" prop="address">
+            <el-cascader
+              :options="addressOptions"
+              size="small"
+              v-model="userInfo.address"
+              placeholder="省份/城市"
+            ></el-cascader>
+          </el-form-item>-->
+        </el-form>
+        <el-button class="submit-btn" type="primary" size="small" @click="submitUserInfo">保 存</el-button>
+      </el-tab-pane>
+      <el-tab-pane label="修改密码" name="password">
+        <el-form
+          :model="password"
+          :rules="passwordRules"
+          ref="passwordForm"
+          label-width="100px"
+          class="demo-ruleForm"
+          key="password"
+        >
+          <el-form-item label="旧密码" prop="oldPasswd">
+            <el-input v-model="password.oldPasswd" size="small" placeholder="请输入旧密码"></el-input>
+          </el-form-item>
+          <el-form-item label="新密码" prop="password">
+            <el-input v-model="password.password" size="small" placeholder="请输入新密码"></el-input>
+          </el-form-item>
+          <el-form-item label="确认新密码" prop="passwordAgain">
+            <el-input v-model="password.passwordAgain" size="small" placeholder="请再次输入新密码"></el-input>
+          </el-form-item>
+        </el-form>
+        <el-button class="submit-btn" type="primary" size="small" @click="updatePassWord">修 改</el-button>
+        <!-- </div> -->
+      </el-tab-pane>
+    </el-tabs>
   </div>
 </template>
+
 <script>
-import paginationMixin from "../../../mixins/pagination";
+import { mapState, mapActions } from "vuex";
+import { setTimeout } from "timers";
 export default {
-  mixins: [paginationMixin],
-  name: "",
   data() {
-    var factoryModuleValid = (rule, value, callback) => {
-      if (!this.encoderForm.factory) {
-        return callback(new Error("请选择厂家"));
-      } else if (!this.encoderForm.module) {
-        return callback(new Error("请选择型号"));
+    var validUserName = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error("姓名不能为空"));
       } else {
         return callback();
       }
     };
+    var validPhoneNo = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error("手机号码不能为空"));
+      } else if (!/^1[3456789]\d{9}$/.test(value)) {
+        return callback(new Error("手机号码格式错误"));
+      } else {
+        return callback();
+      }
+    };
+    var validEmail = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error("邮箱不能为空"));
+      } else if (
+        !/^([a-zA-Z]|[0-9])(\w|\-)+@[a-zA-Z0-9]+\.([a-zA-Z]{2,4})$/.test(value)
+      ) {
+        return callback(new Error("邮箱格式出错"));
+      } else {
+        return callback();
+      }
+    };
+    var validateOld = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error("旧密码不能为空"));
+      } else if (this.password.password === value) {
+        callback(new Error("新旧密码不能相同"));
+      } else if (this.password.password) {
+        this.$refs.passwordForm.validateField("password");
+      }
+      callback();
+    };
+    var validatePass = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error("请输入新密码"));
+      } else {
+        if (this.password.oldPasswd && this.password.oldPasswd === value) {
+          callback("新旧密码不能相同");
+        } else {
+          if (this.password.passwordAgain) {
+            this.$refs.passwordForm.validateField("passwordAgain");
+          }
+        }
+        callback();
+      }
+    };
+    var validateAgain = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error("请再次输入新密码"));
+      } else if (value !== this.password.password) {
+        callback(new Error("两次输入密码不一致!"));
+      } else {
+        callback();
+      }
+    };
+    // var addressValid = (rule, value, callback) => {
+    //   if (this.loginInfo.isAdmin != 1) {
+    //     return callback();
+    //   } else if (!this.userInfo.address) {
+    //     return callback(new Error("请选择所属城市"));
+    //   } else {
+    //     return callback();
+    //   }
+    // };
     return {
-      name: "",
-      userList: [],
-      multipleSelection: [],
-      formTitle: "新增编码器",
-      formVisible: false,
-      encoderForm: {},
-      factoryOptions: [],
-      moduleOptions: [],
-      rules: {
-        serialNum: [
-          { required: true, message: "序列号不能为空", trigger: "blur" }
-        ],
-        name: [{ required: true, message: "名称不能为空", trigger: "blur" }],
-        ip: [{ required: true, message: "IP不能为空", trigger: "blur" }],
-        mac: [{ required: true, message: "MAC不能为空", trigger: "blur" }],
-        authCode: [
-          { required: true, message: "授权码不能为空", trigger: "blur" }
-        ],
-        factoryModule: [
+      activeModule: "userInfo",
+      // addressOptions: [],
+      userInfo: {
+        username: "",
+        phoneNo: "",
+        email: "",
+        loginName: ""
+      },
+      infoRules: {
+        username: [
           {
             required: true,
-            validator: factoryModuleValid,
-            trigger: "change"
+            validator: validUserName,
+            trigger: "blur"
           }
+        ],
+        phoneNo: [
+          {
+            required: true,
+            validator: validPhoneNo,
+            trigger: "blur"
+          }
+        ],
+        email: [
+          {
+            required: true,
+            validator: validEmail,
+            trigger: "blur"
+          }
+        ]
+        // address: [
+        //   {
+        //     required: true,
+        //     validator: addressValid,
+        //     trigger: "change"
+        //   }
+        // ]
+      },
+      password: {
+        oldPasswd: "",
+        password: "",
+        passwordAgain: ""
+      },
+      passwordRules: {
+        oldPasswd: [
+          { required: true, validator: validateOld, trigger: "blur" }
+        ],
+        password: [
+          { required: true, validator: validatePass, trigger: "blur" }
+        ],
+        passwordAgain: [
+          { required: true, validator: validateAgain, trigger: "blur" }
         ]
       }
     };
   },
-  components: {},
+  computed: {
+    ...mapState({ loginInfo: "loginInfo" })
+  },
   created() {
-    this.queryData();
+    let { username, phoneNo, email, loginName } = this.loginInfo;
+    this.userInfo = { username, phoneNo, email, loginName };
+    // this.userInfo.address = [];
+    // if (this.loginInfo.company.city && this.loginInfo.company.province) {
+    //   this.userInfo.address[1] = this.loginInfo.company.city;
+    //   this.userInfo.address[0] = this.loginInfo.company.province;
+    // }
+    // this.$api
+    //   .getOrgTreeTwo()
+    //   .then(res => {
+    //     this.addressOptions = res.data.items;
+    //   })
+    //   .catch(e => {});
   },
   mounted() {},
   methods: {
-    handleSelectionChange(val) {
-      this.multipleSelection = val;
-    },
-    getHeadStyle() {
-      return "background: #F2F2F2;";
-    },
-    //查询数据
-    queryData(pageNum = 1, pageSize = 10) {
-      let paramsObj = { pageNum, pageSize, name: this.name };
-      this.$api
-        .getEncoderList(paramsObj)
-        .then(res => {
-          let data = res.data.data;
-          let vm = this;
-          if (this.name) {
-            this.encoderList = data.filter(function(v) {
-              return v.name.indexOf(vm.name) > -1;
-            });
-          } else {
-            this.encoderList = data;
-          }
-          this.paginationInfo.total = this.encoderList.length;
-        })
-        .catch(e => {});
-    },
-    batchDelete() {
-      if (!this.multipleSelection.length) {
-        this.$message.warning("请至少选择一项");
-      }
-      let ids = [];
-      this.multipleSelection.forEach(function(v) {
-        ids.push(v.id);
-      });
-      let vm = this;
-      ids.forEach(v => {
-        vm.encoderList.forEach(function(val, idx) {
-          if (v == val.id) {
-            vm.encoderList.splice(idx, 1);
-          }
-        });
-      });
-      this.$message.success("批量删除成功");
-    },
-    openDialog(row) {
-      this.formVisible = true;
-      this.formTitle = "新增解码器";
-      if (row) {
-        this.formTitle = "编辑解码器";
-        this.encoderForm = row;
-      }
-    },
-    doDelete(row) {
-      this.$confirm("此操作将永久删除该数据, 是否继续?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      })
-        .then(() => {
-          let arr = this.encoderList;
-          arr.forEach(function(v, i) {
-            if (v.id == row.id) {
-              arr.splice(i, 1);
-            }
-          });
-          this.encoderList = arr;
-        })
-        .catch(e => {
-          this.$message.info("删除取消");
-        });
-    },
-    handleClose() {
-      this.formVisible = false;
-      this.encoderForm = {
-        serialNum: "",
-        name: "",
-        ip: "",
-        mac: "",
-        authCode: "",
-        factory: "",
-        module: ""
-      };
-    },
-    submitForm() {
-      this.$refs.encoderForm.validate(valid => {
+    ...mapActions({ setLoginInfo: "setLoginInfo" }),
+    submitUserInfo() {
+      this.$refs.infoForm.validate(valid => {
+        let { email, phoneNo, username } = this.userInfo;
         if (valid) {
-          if (this.encoderForm.id) {
-            //编辑
-            let vm = this;
-            vm.encoderList.forEach(function(v, i) {
-              if (v.id == vm.encoderForm.id) {
-                vm.encoderList[i] = vm.encoderForm;
+          this.$api
+            .updatePersonalInfo({
+              province: this.userInfo.address[0],
+              city: this.userInfo.address[1],
+              email,
+              phoneNo,
+              username
+            })
+            .then(res => {
+              // if (res.data.success) {
+              this.$message.success("更新个人信息成功");
+              this.loginInfo.username = this.userInfo.username;
+              this.loginInfo.phoneNo = this.userInfo.phoneNo;
+              this.loginInfo.email = this.userInfo.email;
+              // this.loginInfo.company.province = this.userInfo.address[0];
+              // this.loginInfo.company.city = this.userInfo.address[1];
+              this.setLoginInfo(this.loginInfo);
+              // }
+            })
+            .catch(e => {});
+        }
+      });
+    },
+    updatePassWord() {
+      this.$refs.passwordForm.validate(valid => {
+        if (valid) {
+          this.$api
+            .updatePassWord({
+              newPassword1: this.password.password,
+              newPassword2: this.password.passwordAgain,
+              oldPassword: this.password.oldPasswd
+            })
+            .then(res => {
+              console.log("updatePassWord", res);
+              if (res.data.success) {
+                this.$api
+                  .loginOut()
+                  .then(res => {
+                    // if (res.data.success) {
+                    this.setLoginInfo({});
+                    this.$message.success("修改密码成功，请重新登陆");
+                    let vm = this;
+                    setTimeout(function() {
+                      vm.$router.push("/login");
+                    }, 1000);
+                    // }
+                  })
+                  .catch(e => {});
               }
-            });
-            vm.$message.success("编辑成功");
-            vm.handleClose();
-          } else {
-            //新增
-            this.encoderForm.status = 1;
-            this.encoderList.push(this.encoderForm);
-            this.$message.success("新增成功");
-            this.handleClose();
-          }
+            })
+            .catch(e => {});
         }
       });
     }
@@ -272,24 +274,14 @@ export default {
 </script>
 <style lang="scss" scoped>
 .container {
-  .query-div {
-    height: 50px;
+  position: relative;
+  font-size: 18px;
+  .submit-btn {
+    width: 120px;
+    margin-left: 100px;
   }
-  .el-dialog {
-    .el-input {
-      width: 300px;
-    }
-    .dialog-footer {
-      text-align: center;
-      margin: 10px 0;
-      .el-button {
-        width: 100px;
-      }
-    }
-  }
-  .status-img {
-    width: 35px;
-    height: 35px;
+  .el-form {
+    width: 300px;
   }
 }
 </style>

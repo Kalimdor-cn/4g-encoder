@@ -3,6 +3,8 @@ import axios from "./http"
 /**
  * 此文件用于配置接口服务地址
  */
+// console.log(process.env.NODE_ENV)
+console.log(process.env)
 let apiUrl = "/api"
 let url = ''
 export default {

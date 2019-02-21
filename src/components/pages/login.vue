@@ -97,7 +97,10 @@ export default {
               );
               if (isSuccess) {
                 this.$message.success("登陆成功!");
-                this.setLoginInfo({ loginName: this.userInfo.loginName });
+                this.setLoginInfo({
+                  loginName: this.userInfo.loginName,
+                  password: this.userInfo.password
+                });
                 let vm = this;
                 setTimeout(function() {
                   vm.$router.push("/4G_encoder"), 1000;
